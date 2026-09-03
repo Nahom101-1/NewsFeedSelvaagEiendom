@@ -1,0 +1,28 @@
+# Caddy gets a certificate from Let's Encrypt automatically the first time it
+# starts, as long as DOMAIN points at this machine and ports 80 and 443 are open.
+
+{$DOMAIN} {
+	# One shared login. Enough for a handful of testers; swap for real accounts
+	# if this ever becomes a product.
+	basic_auth {
+		{$BASIC_AUTH_USER} {$BASIC_AUTH_HASH}
+	}
+
+	# Everything goes to Next. It proxies /api/* through to Flask itself, so
+	# the API is never exposed directly — one door, one login.
+	reverse_proxy web:3000
+
+	encode gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

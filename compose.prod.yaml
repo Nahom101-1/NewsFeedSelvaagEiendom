@@ -1,0 +1,82 @@
+# Production stack for a single small VM.
+#
+#   cp .env.example .env && edit it
+#   docker compose -f compose.prod.yaml up -d --build
+#
+# Four containers:
+#   caddy     the only thing exposed. TLS + basic auth.
+#   web       Next.js. Reachable only through Caddy.
+#   api       Flask. Reachable only from web and pipeline. Never public.
+#   pipeline  collects, deduplicates and scores every four hours.
+#
+# api and pipeline share the SQLite volume; nothing else touches it.
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data # certificates — losing this re-issues them
+      - caddy-config:/config
+    environment:
+      # Set these in .env. DOMAIN drives the certificate Caddy requests.
+      DOMAIN: "${DOMAIN:?set DOMAIN in .env}"
+      BASIC_AUTH_USER: "${BASIC_AUTH_USER:-radar}"
+      BASIC_AUTH_HASH: "${BASIC_AUTH_HASH:?run: docker run --rm caddy:2-alpine caddy hash-password}"
+    depends_on:
+      - web
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+      args:
+        FLASK_ORIGIN: http://api:8000
+    environment:
+      FLASK_ORIGIN: http://api:8000
+    expose:
+      - "3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  api:
+    build: .
+    volumes:
+      - news-data:/data
+    environment:
+      DATABASE_PATH: /data/news.db
+      SCORE_THRESHOLD: "${SCORE_THRESHOLD:-50}"
+    expose:
+      - "8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  pipeline:
+    build: .
+    command: ["pipeline-loop"]
+    volumes:
+      - news-data:/data
+      # Read-only so tuning the profile or keywords is an edit plus a restart,
+      # not a rebuild.
+      - ./config:/app/config:ro
+    environment:
+      DATABASE_PATH: /data/news.db
+      SCORE_THRESHOLD: "${SCORE_THRESHOLD:-50}"
+      COLLECT_INTERVAL: "${COLLECT_INTERVAL:-14400}"
+      SCORE_ARGS: "${SCORE_ARGS:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+    restart: unless-stopped
+
+volumes:
+  news-data:
+  caddy-data:
+  caddy-config:
