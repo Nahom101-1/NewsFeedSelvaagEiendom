@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; padding: 0; background: #FFFEF9; }
+  * { box-sizing: border-box; }
+  a { color: #B7592E; text-decoration: none; }
+  a:hover { color: #00313B; text-decoration: underline; }
+  ::selection { background: #FAF2CF; }
+  button:focus-visible, input:focus-visible { outline: 2px solid #B7592E; outline-offset: 2px; }
+  input::placeholder { color: rgba(0,49,59,0.38); }
+</style>
+</helmet>
+
+<div style="display: flex; min-height: 100vh; font-family: 'Source Serif 4', Georgia, serif; color: #00313B; background: #FFFEF9;">
+
+  <aside style="width: 264px; flex: 0 0 264px; background: #00313B; color: #FFFEF9; padding: 34px 24px 24px; display: flex; flex-direction: column; gap: 36px;">
+    <div style="display: flex; flex-direction: column;">
+      <div style="font-family: Archivo, Helvetica, sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.17em; text-transform: uppercase; line-height: 1.35;">Selvaag<br />Eiendom</div>
+      <div style="height: 2px; background: #B7592E; margin: 14px 0 12px;"></div>
+      <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #85B590;">Nyhetsradar</div>
+    </div>
+
+    <nav style="display: flex; flex-direction: column;">
+      <button onClick="{{ goBrief }}" style="all: unset; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid rgba(255,254,249,0.16); font-family: Archivo, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #FFFEF9;" style-hover="color: #85B590;">
+        <span style="width: 6px; height: 6px; flex: 0 0 6px; background: #B7592E; opacity: {{ dotBrief }};"></span>
+        <span>Ukens brief</span>
+      </button>
+      <button onClick="{{ goArt }}" style="all: unset; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid rgba(255,254,249,0.16); font-family: Archivo, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #FFFEF9;" style-hover="color: #85B590;">
+        <span style="width: 6px; height: 6px; flex: 0 0 6px; background: #B7592E; opacity: {{ dotArt }};"></span>
+        <span>Sak</span>
+      </button>
+      <button onClick="{{ goAdmin }}" style="all: unset; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid rgba(255,254,249,0.16); font-family: Archivo, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #FFFEF9;" style-hover="color: #85B590;">
+        <span style="width: 6px; height: 6px; flex: 0 0 6px; background: #B7592E; opacity: {{ dotAdmin }};"></span>
+        <span>Kilder og drift</span>
+      </button>
+      <button onClick="{{ goMobile }}" style="all: unset; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid rgba(255,254,249,0.16); font-family: Archivo, Helvetica, sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #FFFEF9;" style-hover="color: #85B590;">
+        <span style="width: 6px; height: 6px; flex: 0 0 6px; background: #B7592E; opacity: {{ dotMobile }};"></span>
+        <span>Mobil</span>
+      </button>
+    </nav>
+
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,254,249,0.45);">Watchlister</div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <sc-for list="{{ lists }}" as="w" hint-placeholder-count="4">
+          <button onClick="{{ w.go }}" style="all: unset; cursor: pointer; display: flex; align-items: baseline; gap: 9px; font-size: 15px; line-height: 1.35; color: {{ w.fg }};" style-hover="color: #FAF2CF;">
+            <span style="flex: 1;">{{ w.name }}</span>
+            <span style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; color: rgba(255,254,249,0.5);">{{ w.count }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="font-size: 13px; line-height: 1.5; color: rgba(255,254,249,0.5); font-style: italic; padding-top: 4px;">{{ scopeNote }}</div>
+    </div>
+
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 12px;">
+      <div style="height: 2px; background: rgba(255,254,249,0.22);"></div>
+      <div style="display: flex; flex-direction: column; gap: 3px; font-size: 13px; line-height: 1.5; color: rgba(255,254,249,0.62);">
+        <div>412 artikler siste 7 døgn</div>
+        <div>34 kilder · sist kjørt 06:12</div>
+      </div>
+      <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(133,181,144,0.8);">Kunsten å utvikle eiendom</div>
+    </div>
+  </aside>
+
+  <main style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+
+    <!-- ===== UKENS BRIEF ===== -->
+    <sc-if value="{{ isBrief }}" hint-placeholder-val="{{ true }}">
+    <div style="padding: 46px 52px 72px; max-width: 1080px;">
+
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; padding-bottom: 24px; border-bottom: 2px solid #00313B;">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.17em; text-transform: uppercase; color: #B7592E;">Uke 36 · 31. august – 6. september 2026</div>
+          <h1 style="margin: 0; font-family: Archivo, Helvetica, sans-serif; font-weight: 500; font-size: 40px; letter-spacing: 0.015em; text-transform: uppercase; line-height: 1.05;">Ukens brief</h1>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button style="all: unset; cursor: pointer; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 16px; border: 2px solid #00313B; color: #00313B;" style-hover="background: #FAF2CF;">Del i Teams</button>
+          <button style="all: unset; cursor: pointer; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 16px; border: 2px solid #B7592E; background: #B7592E; color: #FFFEF9;" style-hover="background: #00313B; border-color: #00313B;">Send digest</button>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 2px solid #00313B;">
+        <div style="padding: 22px 20px 22px 0; border-right: 1px solid #E3DBCC; display: flex; flex-direction: column; gap: 5px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 28px; font-weight: 500;">412</div>
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(0,49,59,0.55);">Samlet inn</div>
+        </div>
+        <div style="padding: 22px 20px; border-right: 1px solid #E3DBCC; display: flex; flex-direction: column; gap: 5px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 28px; font-weight: 500;">118</div>
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(0,49,59,0.55);">Unike saker</div>
+        </div>
+        <div style="padding: 22px 20px; border-right: 1px solid #E3DBCC; display: flex; flex-direction: column; gap: 5px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 28px; font-weight: 500; color: #B7592E;">14</div>
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(0,49,59,0.55);">Over terskel</div>
+        </div>
+        <div style="padding: 22px 0 22px 20px; display: flex; flex-direction: column; gap: 5px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 28px; font-weight: 500;">7</div>
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(0,49,59,0.55);">Til vurdering</div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: baseline; gap: 20px; padding: 26px 0 8px;">
+        <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(0,49,59,0.55);">Viser</div>
+        <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #00313B;">{{ activeList }}</div>
+      </div>
+
+      <p style="margin: 0 0 34px; font-size: 18px; line-height: 1.6; color: rgba(0,49,59,0.75); max-width: 56ch; text-wrap: pretty;">{{ activeBlurb }}</p>
+
+      <div style="display: flex; flex-direction: column;">
+        <sc-for list="{{ items }}" as="it" hint-placeholder-count="5">
+          <article onClick="{{ it.open }}" style="cursor: pointer; padding: 30px 0 32px; border-top: 1px solid #E3DBCC; display: grid; grid-template-columns: 76px 1fr; gap: 28px;" style-hover="background: rgba(250,242,207,0.4);">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 22px; font-weight: 500; line-height: 1; color: {{ it.scoreFg }};">{{ it.score }}</div>
+              <div style="height: 4px; background: #E3DBCC;"><div style="height: 4px; width: {{ it.bar }}; background: {{ it.scoreFg }};"></div></div>
+              <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 9px; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(0,49,59,0.45);">Relevans</div>
+            </div>
+            <div style="min-width: 0; display: flex; flex-direction: column; gap: 11px;">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(0,49,59,0.5);">
+                <span style="color: #B7592E;">{{ it.list }}</span>
+                <span>{{ it.source }}</span>
+                <span>{{ it.time }}</span>
+                <span style="padding: 3px 8px; background: #F2FCFA; border: 1px solid #85B590; letter-spacing: 0.09em;">{{ it.clusterText }}</span>
+              </div>
+              <h2 style="margin: 0; font-size: 25px; font-weight: 600; line-height: 1.25; max-width: 46ch; text-wrap: pretty;">{{ it.title }}</h2>
+              <p style="margin: 0; font-size: 17px; line-height: 1.62; color: rgba(0,49,59,0.78); max-width: 62ch; text-wrap: pretty;">{{ it.summary }}</p>
+              <div style="padding: 2px 0 2px 16px; border-left: 2px solid #B7592E; margin-top: 3px;">
+                <p style="margin: 0; font-size: 16px; font-style: italic; line-height: 1.55; color: rgba(0,49,59,0.68); max-width: 58ch; text-wrap: pretty;">{{ it.why }}</p>
+              </div>
+            </div>
+          </article>
+        </sc-for>
+        <div style="border-top: 2px solid #00313B; padding-top: 22px; display: flex; align-items: baseline; gap: 16px;">
+          <button style="all: unset; cursor: pointer; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 16px; border: 2px solid #00313B; color: #00313B;" style-hover="background: #FAF2CF;">Vis 9 saker under terskel</button>
+          <span style="font-size: 15px; color: rgba(0,49,59,0.55); font-style: italic;">Klassifikatoren er usikker på disse. Vurderingen din trener modellen.</span>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== SAK ===== -->
+    <sc-if value="{{ isArt }}" hint-placeholder-val="{{ false }}">
+    <div style="display: flex; min-height: 100vh;">
+      <div style="flex: 1; min-width: 0; padding: 46px 52px 72px; max-width: 780px;">
+        <button onClick="{{ goBrief }}" style="all: unset; cursor: pointer; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.13em; text-transform: uppercase; color: #B7592E;" style-hover="color: #00313B;">← Tilbake til brief</button>
+
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 30px 0 16px; font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(0,49,59,0.55);">
+          <span style="color: #B7592E;">{{ art.list }}</span>
+          <span>{{ art.source }}</span>
+          <span>{{ art.time }}</span>
+        </div>
+
+        <h1 style="margin: 0; font-size: 40px; font-weight: 600; line-height: 1.16; letter-spacing: -0.01em; max-width: 30ch; text-wrap: pretty;">{{ art.title }}</h1>
+
+        <div style="height: 2px; background: #00313B; margin: 30px 0 0;"></div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 26px 0 30px; border-bottom: 1px solid #E3DBCC;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(0,49,59,0.5);">Sammendrag</div>
+          <p style="margin: 0; font-size: 20px; line-height: 1.6; text-wrap: pretty;">{{ art.summary }}</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px; padding: 30px 28px; background: #FAF2CF; margin: 30px 0;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #B7592E;">Derfor er dette relevant for oss</div>
+          <p style="margin: 0; font-size: 19px; line-height: 1.6; text-wrap: pretty;">{{ art.why }}</p>
+          <div style="font-size: 14px; color: rgba(0,49,59,0.55); font-style: italic; padding-top: 4px;">Generert av språkmodell. Kun for saker over terskel.</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px; padding-top: 12px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(0,49,59,0.5);">Utdrag</div>
+          <sc-for list="{{ art.body }}" as="p" hint-placeholder-count="3">
+            <p style="margin: 0; font-size: 17px; line-height: 1.7; color: rgba(0,49,59,0.85); max-width: 66ch; text-wrap: pretty;">{{ p.text }}</p>
+          </sc-for>
+          <a href="#" style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding-top: 8px;">Les hos {{ art.source }} →</a>
+        </div>
+      </div>
+
+      <aside style="flex: 0 0 396px; border-left: 2px solid #00313B; background: #F4F4F2; padding: 46px 34px 72px; display: flex; flex-direction: column; gap: 34px;">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(0,49,59,0.5);">Relevansscore</div>
+          <div style="display: flex; align-items: baseline; gap: 10px;">
+            <span style="font-family: Archivo, Helvetica, sans-serif; font-size: 46px; font-weight: 500; line-height: 1; color: #B7592E;">{{ art.score }}</span>
+            <span style="font-family: Archivo, Helvetica, sans-serif; font-size: 13px; color: rgba(0,49,59,0.5);">/ 100</span>
+          </div>
+          <div style="height: 6px; background: #E3DBCC;"><div style="height: 6px; width: {{ art.bar }}; background: #B7592E;"></div></div>
+          <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(0,49,59,0.7);">{{ art.scoreNote }}</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(0,49,59,0.5);">Nærmeste treningseksempler</div>
+          <sc-for list="{{ art.neighbours }}" as="n" hint-placeholder-count="3">
+            <div style="display: flex; gap: 12px; align-items: baseline; padding-bottom: 12px; border-bottom: 1px solid #E3DBCC;">
+              <span style="flex: 0 0 38px; font-family: Archivo, Helvetica, sans-serif; font-size: 12px; color: #B7592E;">{{ n.sim }}</span>
+              <span style="flex: 1; font-size: 14px; line-height: 1.45;">{{ n.title }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(0,49,59,0.5);">Samme sak i {{ art.clusterCount }} kilder</div>
+          <sc-for list="{{ art.sources }}" as="s" hint-placeholder-count="3">
+            <div style="display: flex; flex-direction: column; gap: 3px; padding-bottom: 12px; border-bottom: 1px solid #E3DBCC;">
+              <span style="font-size: 14px; line-height: 1.45;">{{ s.title }}</span>
+              <span style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(0,49,59,0.45);">{{ s.name }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(0,49,59,0.5);">Fra arkivet</div>
+          <sc-for list="{{ art.related }}" as="r" hint-placeholder-count="2">
+            <div style="display: flex; flex-direction: column; gap: 3px;">
+              <span style="font-size: 14px; line-height: 1.45;">{{ r.title }}</span>
+              <span style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(0,49,59,0.45);">{{ r.meta }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding-top: 20px; border-top: 2px solid #00313B;">
+          <button onClick="{{ flag }}" style="all: unset; cursor: pointer; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 13px 16px; background: {{ flagBg }}; border: 2px solid {{ flagBg }}; color: #FFFEF9;" style-hover="background: #00313B; border-color: #00313B;">{{ flagLabel }}</button>
+          <button style="all: unset; cursor: pointer; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 13px 16px; border: 2px solid rgba(0,49,59,0.4); color: rgba(0,49,59,0.75);" style-hover="border-color: #00313B; background: #E3DBCC; color: #00313B;">Ikke relevant</button>
+          <div style="font-size: 13px; line-height: 1.5; color: rgba(0,49,59,0.55); font-style: italic;">Begge valg går inn som treningsdata for din watchliste.</div>
+        </div>
+      </aside>
+    </div>
+    </sc-if>
+
+    <!-- ===== KILDER OG DRIFT ===== -->
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+    <div style="padding: 46px 52px 72px; max-width: 1180px;">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; padding-bottom: 24px; border-bottom: 2px solid #00313B;">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.17em; text-transform: uppercase; color: #B7592E;">Drift · 3. september 06:12</div>
+          <h1 style="margin: 0; font-family: Archivo, Helvetica, sans-serif; font-weight: 500; font-size: 40px; letter-spacing: 0.015em; text-transform: uppercase; line-height: 1.05;">Kilder og drift</h1>
+        </div>
+        <button style="all: unset; cursor: pointer; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 16px; border: 2px solid #00313B; color: #00313B;" style-hover="background: #FAF2CF;">Kjør innsamling nå</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 2px solid #00313B;">
+        <sc-for list="{{ health }}" as="h" hint-placeholder-count="3">
+          <div style="padding: 26px 24px 26px 0; border-right: 1px solid #E3DBCC; display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(0,49,59,0.5);">{{ h.label }}</div>
+            <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 24px; font-weight: 500; color: {{ h.fg }};">{{ h.value }}</div>
+            <div style="font-size: 14px; line-height: 1.5; color: rgba(0,49,59,0.65);">{{ h.note }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1.55fr 1fr; gap: 44px; padding-top: 38px;">
+        <section style="min-width: 0; display: flex; flex-direction: column; gap: 18px;">
+          <h2 style="margin: 0; font-family: Archivo, Helvetica, sans-serif; font-weight: 500; font-size: 15px; letter-spacing: 0.13em; text-transform: uppercase;">Kilder</h2>
+          <div style="display: grid; grid-template-columns: 1.5fr 0.7fr 0.7fr 0.9fr; font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(0,49,59,0.5); padding-bottom: 10px; border-bottom: 2px solid #00313B;">
+            <span>Kilde</span><span>Type</span><span>7 døgn</span><span>Status</span>
+          </div>
+          <sc-for list="{{ sources }}" as="s" hint-placeholder-count="8">
+            <div style="display: grid; grid-template-columns: 1.5fr 0.7fr 0.7fr 0.9fr; align-items: baseline; gap: 8px; padding-bottom: 13px; border-bottom: 1px solid #E3DBCC; font-size: 15px;">
+              <span>{{ s.name }}</span>
+              <span style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(0,49,59,0.55);">{{ s.type }}</span>
+              <span style="font-family: Archivo, Helvetica, sans-serif; font-size: 14px;">{{ s.count }}</span>
+              <span style="display: flex; align-items: center; gap: 7px; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: {{ s.fg }};">
+                <span style="width: 6px; height: 6px; flex: 0 0 6px; background: {{ s.fg }};"></span>{{ s.status }}
+              </span>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="min-width: 0; display: flex; flex-direction: column; gap: 34px;">
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <h2 style="margin: 0; font-family: Archivo, Helvetica, sans-serif; font-weight: 500; font-size: 15px; letter-spacing: 0.13em; text-transform: uppercase;">Modeller</h2>
+            <sc-for list="{{ models }}" as="m" hint-placeholder-count="3">
+              <div style="display: flex; flex-direction: column; gap: 5px; padding-bottom: 14px; border-bottom: 1px solid #E3DBCC;">
+                <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: rgba(0,49,59,0.5);">{{ m.role }}</div>
+                <div style="font-size: 16px; line-height: 1.4;">{{ m.name }}</div>
+                <div style="font-size: 14px; line-height: 1.5; color: rgba(0,49,59,0.62);">{{ m.note }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 14px; padding: 24px; background: #F2FCFA; border: 2px solid #85B590;">
+            <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(0,49,59,0.6);">Treningsgrunnlag</div>
+            <div style="display: flex; align-items: baseline; gap: 10px;">
+              <span style="font-family: Archivo, Helvetica, sans-serif; font-size: 34px; font-weight: 500; line-height: 1;">142</span>
+              <span style="font-size: 15px; color: rgba(0,49,59,0.65);">merkede eksempler</span>
+            </div>
+            <p style="margin: 0; font-size: 15px; line-height: 1.55; color: rgba(0,49,59,0.75); text-wrap: pretty;">Kommunikasjon har merket 89, forretningsutvikling 41, ledelse 12. Presisjon på holdout: 0,81.</p>
+            <button style="all: unset; cursor: pointer; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 11px 0; color: #B7592E; border-top: 1px solid #85B590; padding-top: 14px;" style-hover="color: #00313B;">Tren modellen på nytt →</button>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <h2 style="margin: 0; font-family: Archivo, Helvetica, sans-serif; font-weight: 500; font-size: 15px; letter-spacing: 0.13em; text-transform: uppercase;">Siste kjøring</h2>
+            <sc-for list="{{ logLines }}" as="l" hint-placeholder-count="5">
+              <div style="display: flex; gap: 12px; font-size: 14px; line-height: 1.5;">
+                <span style="flex: 0 0 44px; font-family: Archivo, Helvetica, sans-serif; font-size: 12px; color: rgba(0,49,59,0.45);">{{ l.t }}</span>
+                <span style="flex: 1; color: rgba(0,49,59,0.78);">{{ l.text }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== MOBIL ===== -->
+    <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <div style="padding: 46px 52px 72px;">
+      <div style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 24px; border-bottom: 2px solid #00313B; max-width: 720px;">
+        <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.17em; text-transform: uppercase; color: #B7592E;">390 px · brief og sak</div>
+        <h1 style="margin: 0; font-family: Archivo, Helvetica, sans-serif; font-weight: 500; font-size: 40px; letter-spacing: 0.015em; text-transform: uppercase; line-height: 1.05;">Mobil</h1>
+        <p style="margin: 0; font-size: 17px; line-height: 1.6; color: rgba(0,49,59,0.72); max-width: 54ch; text-wrap: pretty;">Samme innhold, én kolonne. Relevansscoren flyttes opp i metalinjen, og «derfor er dette relevant» blir det første man leser.</p>
+      </div>
+
+      <div style="display: flex; gap: 40px; flex-wrap: wrap; padding-top: 38px;">
+
+        <div style="width: 390px; flex: 0 0 390px; border: 2px solid #00313B; background: #FFFEF9;">
+          <div style="background: #00313B; color: #FFFEF9; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;">Nyhetsradar</div>
+            <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #85B590;">Uke 36</div>
+          </div>
+          <div style="padding: 22px 20px 8px; border-bottom: 2px solid #00313B;">
+            <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #B7592E; padding-bottom: 8px;">{{ activeList }}</div>
+            <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 26px; font-weight: 500; letter-spacing: 0.015em; text-transform: uppercase; line-height: 1.1; padding-bottom: 14px;">Ukens brief</div>
+            <div style="display: flex; gap: 18px; padding-bottom: 16px; font-size: 14px; color: rgba(0,49,59,0.65);">
+              <span>14 over terskel</span><span>118 saker</span>
+            </div>
+          </div>
+          <sc-for list="{{ mobileItems }}" as="it" hint-placeholder-count="3">
+            <div style="padding: 20px; border-bottom: 1px solid #E3DBCC; display: flex; flex-direction: column; gap: 9px;">
+              <div style="display: flex; align-items: center; gap: 9px; font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.11em; text-transform: uppercase; color: rgba(0,49,59,0.5);">
+                <span style="background: #B7592E; color: #FFFEF9; padding: 3px 7px; letter-spacing: 0.05em;">{{ it.score }}</span>
+                <span>{{ it.source }}</span>
+                <span>{{ it.time }}</span>
+              </div>
+              <div style="font-size: 20px; font-weight: 600; line-height: 1.28; text-wrap: pretty;">{{ it.title }}</div>
+              <div style="padding-left: 14px; border-left: 2px solid #B7592E;">
+                <div style="font-size: 15px; font-style: italic; line-height: 1.5; color: rgba(0,49,59,0.7); text-wrap: pretty;">{{ it.why }}</div>
+              </div>
+            </div>
+          </sc-for>
+          <div style="padding: 18px 20px; display: flex; justify-content: space-between; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.11em; text-transform: uppercase; color: #B7592E;">
+            <span>Vis alle 14</span><span>→</span>
+          </div>
+        </div>
+
+        <div style="width: 390px; flex: 0 0 390px; border: 2px solid #00313B; background: #FFFEF9;">
+          <div style="background: #00313B; color: #FFFEF9; padding: 16px 20px; display: flex; align-items: center; gap: 10px;">
+            <span style="font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;">← Brief</span>
+          </div>
+          <div style="padding: 22px 20px 24px; display: flex; flex-direction: column; gap: 12px; border-bottom: 2px solid #00313B;">
+            <div style="display: flex; align-items: center; gap: 9px; font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.11em; text-transform: uppercase; color: rgba(0,49,59,0.5);">
+              <span style="background: #B7592E; color: #FFFEF9; padding: 3px 7px; letter-spacing: 0.05em;">{{ art.score }}</span>
+              <span>{{ art.source }}</span>
+            </div>
+            <div style="font-size: 26px; font-weight: 600; line-height: 1.22; text-wrap: pretty;">{{ art.title }}</div>
+          </div>
+          <div style="padding: 22px 20px; background: #FAF2CF; display: flex; flex-direction: column; gap: 9px;">
+            <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #B7592E;">Derfor er dette relevant</div>
+            <div style="font-size: 17px; line-height: 1.55; text-wrap: pretty;">{{ art.why }}</div>
+          </div>
+          <div style="padding: 22px 20px; display: flex; flex-direction: column; gap: 9px; border-bottom: 1px solid #E3DBCC;">
+            <div style="font-family: Archivo, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(0,49,59,0.5);">Sammendrag</div>
+            <div style="font-size: 17px; line-height: 1.6; text-wrap: pretty;">{{ art.summary }}</div>
+          </div>
+          <div style="padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+            <button style="all: unset; cursor: pointer; text-align: left; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 14px 16px; background: #B7592E; color: #FFFEF9;" style-hover="background: #00313B;">Flagg som viktig</button>
+            <button style="all: unset; cursor: pointer; text-align: left; font-family: Archivo, Helvetica, sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; padding: 14px 16px; border: 2px solid rgba(0,49,59,0.4); color: rgba(0,49,59,0.75);" style-hover="border-color: #00313B; background: #E3DBCC;">Ikke relevant</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#B7592E&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#B7592E&quot;,&quot;#00313B&quot;,&quot;#85B590&quot;],&quot;section&quot;:&quot;Utseende&quot;},&quot;watchlistScope&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;begge&quot;,&quot;options&quot;:[&quot;begge&quot;,&quot;rolle&quot;,&quot;person&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Watchlister&quot;},&quot;showScores&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Feed&quot;}}">
+const LISTS = [
+  { id: "fu", name: "Forretningsutvikling", count: 6, scope: "rolle", blurb: "Watchlisten er bygget rundt 14 artikler om konkurrenters transaksjoner. Alt som lander nær dem i vektorrommet dukker opp her." },
+  { id: "komm", name: "Kommunikasjon", count: 4, scope: "rolle", blurb: "Bygget rundt omtale av Selvaag-selskaper og av prosjektene våre. 89 merkede eksempler ligger bak." },
+  { id: "led", name: "Ledelse", count: 3, scope: "rolle", blurb: "Finansiering, renter og makro for eiendom. Færrest eksempler, så terskelen står høyere her." },
+  { id: "min", name: "Min liste · Anne", count: 5, scope: "person", blurb: "Din personlige liste. Bygget av de sakene du selv har flagget de siste ukene, ingen nøkkelord." }
+];
+
+const ITEMS = [
+  {
+    list: "Forretningsutvikling", source: "Estate Nyheter", time: "2. sep", score: 94, clusterText: "5 kilder",
+    title: "Fornebu-tomt solgt for 412 millioner til svensk fondsaktør",
+    summary: "Tomten på 24 mål ved Forneburingen er regulert for 480 boenheter. Kjøper er et Stockholm-basert fond som ikke tidligere har vært i det norske boligmarkedet. Oppgjøret tilsvarer 8 600 kroner per kvadratmeter BRA.",
+    why: "Nærmeste nabotomt til vårt eget reguleringsforslag på Forneburingen. Prisen setter en referanse vi vil bli målt mot i neste verdivurdering.",
+    scoreNote: "Høyt over terskel. Modellen kjenner igjen mønsteret transaksjon + Fornebu + regulert volum fra 11 tidligere flagg.",
+    body: [
+      "Salget ble bekreftet mandag ettermiddag, etter at partene hadde forhandlet siden mai. Megleroppdraget lå hos et av de større næringsmeglerhusene.",
+      "Fondet uttaler at det ser Fornebu som et av få områder i Oslo-regionen med et samlet, ferdig regulert boligvolum av betydning, og at banelinjen til Fornebu var utslagsgivende for beslutningen.",
+      "Selger har eid tomten siden 2019. Reguleringsplanen ble endelig vedtatt i fjor høst, med krav om 20 prosent rimelige boliger."
+    ],
+    neighbours: [
+      { sim: "0,91", title: "Flagget: Tomtekjøp Lysaker, mars 2026" },
+      { sim: "0,88", title: "Flagget: Fondsaktør inn på Skøyen, november 2025" },
+      { sim: "0,84", title: "Flagget: Boligtomt Ulven solgt, januar 2026" }
+    ],
+    sources: [
+      { title: "Fornebu-tomt solgt for 412 millioner", name: "Estate Nyheter" },
+      { title: "Svensk fond kjøper på Fornebu", name: "Finansavisen" },
+      { title: "Selger tomt på Fornebu", name: "NTB" },
+      { title: "Milliardhandel i Bærum", name: "Budstikka" },
+      { title: "Nytt utenlandsk fond inn i Oslo-området", name: "Kapital" }
+    ],
+    related: [
+      { title: "Fornebubanen forsinket til 2030", meta: "Estate · april 2026 · 0,78" },
+      { title: "Bærum vedtar nye rekkefølgekrav", meta: "Budstikka · februar 2026 · 0,74" }
+    ]
+  },
+  {
+    list: "Ledelse", source: "Finansavisen", time: "2. sep", score: 88, clusterText: "7 kilder",
+    title: "Norges Bank holder styringsrenten uendret på 3,75 prosent",
+    summary: "Komiteen viser til at prisveksten har falt langsommere enn ventet. Rentebanen antyder ett kutt i første kvartal 2027, ett kvartal senere enn i juni-anslaget.",
+    why: "Utsatt kutt betyr at kalkylerentene i prosjektregnskapene for Løren og Skøyen bør oppdateres før styremøtet 18. september.",
+    scoreNote: "Over terskel for ledelse. Klassifikatoren vekter rentebeslutninger høyt i denne watchlisten.",
+    body: [
+      "Beslutningen var i tråd med markedets forventninger, men den oppdaterte rentebanen var strammere enn ventet.",
+      "Sentralbanksjefen pekte på lønnsveksten og på kronekursen som de to forholdene som holder renten oppe."
+    ],
+    neighbours: [
+      { sim: "0,93", title: "Flagget: Rentebeslutning juni 2026" },
+      { sim: "0,90", title: "Flagget: Rentebane strammes inn, mars 2026" },
+      { sim: "0,82", title: "Flagget: Bankenes utlånsmarginer øker" }
+    ],
+    sources: [
+      { title: "Renten holdes uendret", name: "Finansavisen" },
+      { title: "Norges Bank står stille", name: "E24" },
+      { title: "Uendret styringsrente", name: "NTB" }
+    ],
+    related: [
+      { title: "Byggelånsrenter opp 40 punkter", meta: "Estate · mai 2026 · 0,80" },
+      { title: "Boligsalget bremser i Oslo", meta: "E24 · juni 2026 · 0,71" }
+    ]
+  },
+  {
+    list: "Forretningsutvikling", source: "Estate Nyheter", time: "1. sep", score: 81, clusterText: "3 kilder",
+    title: "Kontorledigheten i Oslo vest faller til 6,8 prosent",
+    summary: "Halvårstallene viser at ledigheten på Skøyen og Lysaker er ned fra 8,1 prosent. Leieprisene for høy standard er opp 6 prosent år over år, mens eldre arealer står stille.",
+    why: "Bekrefter forutsetningene i utleiebudsjettet for Skøyen. Tomgangen vi har lagt inn for 2027 kan være for konservativ.",
+    scoreNote: "Over terskel. Ligger nær 9 tidligere flagg om ledighet og leiepriser i Oslo vest.",
+    body: [
+      "Analysen bygger på et utvalg på 1,9 millioner kvadratmeter kontorareal vest for sentrum.",
+      "Forskjellen mellom nyoppusset og eldre areal er den største som er målt i undersøkelsens historie."
+    ],
+    neighbours: [
+      { sim: "0,89", title: "Flagget: Ledighetstall Oslo vest, februar 2026" },
+      { sim: "0,85", title: "Flagget: Leieprisvekst Skøyen, oktober 2025" },
+      { sim: "0,79", title: "Flagget: Kontormarkedet halvårsrapport 2025" }
+    ],
+    sources: [
+      { title: "Kontorledigheten faller i Oslo vest", name: "Estate Nyheter" },
+      { title: "Ledigheten ned på Skøyen", name: "NE Nyheter" },
+      { title: "Halvårstall for kontormarkedet", name: "Kapital" }
+    ],
+    related: [
+      { title: "Skøyen-området får ny reguleringsplan", meta: "Estate · januar 2026 · 0,76" },
+      { title: "Leietakere krever kortere kontrakter", meta: "NE Nyheter · mars 2026 · 0,70" }
+    ]
+  },
+  {
+    list: "Kommunikasjon", source: "Byggeindustrien", time: "1. sep", score: 76, clusterText: "2 kilder",
+    title: "Energikravene i TEK skjerpes fra 2027, høringsfristen er 15. oktober",
+    summary: "Direktoratet foreslår å senke rammekravet for netto energibehov i boligblokk med 15 prosent, og å innføre krav om dokumentert klimagassregnskap for alle nybygg over 1 000 kvadratmeter.",
+    why: "Treffer prosjekter med rammesøknad etter årsskiftet. Vi bør vurdere om høringssvaret skal gå gjennom bransjeforeningen eller i eget navn.",
+    scoreNote: "Over terskel. Reguleringsendringer med høringsfrist blir konsekvent flagget av kommunikasjon.",
+    body: [
+      "Forslaget har vært varslet siden 2024, men kravnivået er strammere enn utkastet som ble sirkulert i mars.",
+      "Bransjen har tidligere pekt på at klimagassregnskap for mindre prosjekter gir en dokumentasjonsbyrde som ikke svarer seg."
+    ],
+    neighbours: [
+      { sim: "0,87", title: "Flagget: TEK-endringer på høring, mars 2026" },
+      { sim: "0,81", title: "Flagget: Nye krav til klimagassregnskap" },
+      { sim: "0,77", title: "Flagget: Høring om rimelige boliger" }
+    ],
+    sources: [
+      { title: "Energikravene skjerpes fra 2027", name: "Byggeindustrien" },
+      { title: "TEK på høring igjen", name: "Estate Nyheter" }
+    ],
+    related: [
+      { title: "Kommunen strammer inn parkeringsnorm", meta: "Aftenposten · mai 2026 · 0,72" },
+      { title: "Klimakrav gir dyrere fasader", meta: "Byggeindustrien · april 2026 · 0,69" }
+    ]
+  },
+  {
+    list: "Min liste · Anne", source: "Dagens Næringsliv", time: "31. aug", score: 68, clusterText: "4 kilder",
+    title: "Entreprenørkonkurs i Groruddalen stanser 180 boliger",
+    summary: "Totalentreprenøren gikk til skifteretten fredag med et underskudd på 240 millioner kroner. Tre boligprosjekter i Oslo øst står uten utførende, og bostyrer anslår seks måneder før arbeidene kan gjenopptas.",
+    why: "Selskapet har levert anbud på to av våre prosjekter de siste to årene. Verdt å sjekke om noen av underleverandørene våre er eksponert.",
+    scoreNote: "Rett over terskel. Modellen var usikker, saken ble rutet til språkmodellen som vurderte den som relevant.",
+    body: [
+      "Konkursen kommer etter et halvår med varsler om likviditetsproblemer og forsinkede leverandørbetalinger.",
+      "Bostyrer opplyser at det arbeides med å overføre kontraktene til andre entreprenører, men at prisnivået fra 2024 ikke er oppnåelig i dag."
+    ],
+    neighbours: [
+      { sim: "0,84", title: "Flagget: Entreprenørkonkurs Bergen, januar 2026" },
+      { sim: "0,80", title: "Flagget: Leverandør varsler mislighold" },
+      { sim: "0,73", title: "Flagget: Anbudspriser opp 9 prosent" }
+    ],
+    sources: [
+      { title: "Entreprenørkonkurs stanser 180 boliger", name: "Dagens Næringsliv" },
+      { title: "Går til skifteretten", name: "NTB" },
+      { title: "Boligprosjekter i Oslo øst rammet", name: "Estate Nyheter" },
+      { title: "Konkurs i Groruddalen", name: "Byggeindustrien" }
+    ],
+    related: [
+      { title: "Anbudsmarkedet strammer seg til", meta: "Byggeindustrien · februar 2026 · 0,75" },
+      { title: "Færre entreprenører byr på boligprosjekt", meta: "Estate · desember 2025 · 0,68" }
+    ]
+  }
+];
+
+const HEALTH = [
+  { label: "Innsamling", value: "Grønn", fg: "#00313B", note: "34 av 34 kilder svarte. Siste feil for 6 døgn siden." },
+  { label: "Duplikatklynging", value: "294 slått sammen", fg: "#00313B", note: "Terskel 0,85 cosinus over et rullerende vindu på 72 timer." },
+  { label: "Språkmodell", value: "16 kall", fg: "#B7592E", note: "Sammendrag og begrunnelse for saker over terskel, pluss 4 usikre." }
+];
+
+const SOURCES = [
+  { name: "Estate Nyheter", type: "RSS", count: 84, status: "Aktiv", fg: "#00313B" },
+  { name: "NTB (eiendom)", type: "API", count: 71, status: "Aktiv", fg: "#00313B" },
+  { name: "Finansavisen", type: "RSS", count: 46, status: "Aktiv", fg: "#00313B" },
+  { name: "Byggeindustrien", type: "RSS", count: 39, status: "Aktiv", fg: "#00313B" },
+  { name: "NE Nyheter", type: "Skrape", count: 28, status: "Aktiv", fg: "#00313B" },
+  { name: "Dagens Næringsliv", type: "RSS", count: 22, status: "Delvis", fg: "#B7592E" },
+  { name: "Kapital", type: "Skrape", count: 14, status: "Aktiv", fg: "#00313B" },
+  { name: "Oslo kommune · planinnsyn", type: "API", count: 11, status: "Aktiv", fg: "#00313B" },
+  { name: "Budstikka", type: "RSS", count: 9, status: "Aktiv", fg: "#00313B" },
+  { name: "Aftenposten Osloby", type: "RSS", count: 7, status: "Betalingsmur", fg: "#B7592E" }
+];
+
+const MODELS = [
+  { role: "Embedding", name: "NbAiLab/nb-sbert-base", note: "768 dimensjoner, norsktrent, Apache 2.0. Kjører på CPU, cirka 700 MB resident." },
+  { role: "Klassifikator", name: "SetFit på nb-sbert-base", note: "Trent på flagg og avvisninger fra watchlistene. Trenes på nytt hver natt." },
+  { role: "Språkmodell", name: "Kun sammendrag og begrunnelse", note: "Kalles for saker over terskel og for det usikre båndet mellom 0,4 og 0,6." }
+];
+
+const LOG = [
+  { t: "06:12", text: "Innsamling ferdig. 412 artikler hentet fra 34 kilder." },
+  { t: "06:14", text: "Embedding av 412 tekster, 41 sekunder på CPU." },
+  { t: "06:15", text: "Klynging: 294 duplikater slått sammen til 118 saker." },
+  { t: "06:15", text: "Klassifisering: 14 over terskel, 9 i usikkert bånd." },
+  { t: "06:17", text: "Språkmodell: 16 sammendrag og 14 begrunnelser generert." },
+  { t: "06:18", text: "Brief publisert til 3 rollelister og 11 personlige lister." }
+];
+
+class Component extends DCLogic {
+  state = { screen: "brief", sel: 0, list: "komm", flagged: false };
+
+  go = (screen) => () => this.setState({ screen });
+
+  renderVals() {
+    const s = this.state;
+    const scope = this.props.watchlistScope || "begge";
+    const showScores = this.props.showScores !== false;
+    const accent = this.props.accent || "#B7592E";
+
+    const lists = LISTS.filter(l => scope === "begge" || l.scope === scope);
+    const active = LISTS.find(l => l.id === s.list) || lists[0] || LISTS[0];
+    const art = ITEMS[s.sel];
+
+    return {
+      isBrief: s.screen === "brief",
+      isArt: s.screen === "art",
+      isAdmin: s.screen === "admin",
+      isMobile: s.screen === "mobile",
+      dotBrief: s.screen === "brief" ? 1 : 0,
+      dotArt: s.screen === "art" ? 1 : 0,
+      dotAdmin: s.screen === "admin" ? 1 : 0,
+      dotMobile: s.screen === "mobile" ? 1 : 0,
+      goBrief: this.go("brief"),
+      goArt: this.go("art"),
+      goAdmin: this.go("admin"),
+      goMobile: this.go("mobile"),
+
+      lists: lists.map(l => ({
+        name: l.name, count: l.count,
+        fg: l.id === active.id ? "#FFFEF9" : "rgba(255,254,249,0.6)",
+        go: () => this.setState({ list: l.id, screen: "brief" })
+      })),
+      scopeNote: scope === "rolle" ? "Kun rollelister." : scope === "person" ? "Kun personlige lister." : "Rollelister og personlige lister.",
+      activeList: active.name,
+      activeBlurb: active.blurb,
+
+      items: ITEMS.map((it, i) => ({
+        ...it,
+        score: showScores ? it.score : "",
+        bar: it.score + "%",
+        scoreFg: it.score >= 85 ? accent : "#00313B",
+        open: () => this.setState({ screen: "art", sel: i, flagged: false })
+      })),
+      mobileItems: ITEMS.slice(0, 3),
+
+      art: { ...art, bar: art.score + "%" },
+      flag: () => this.setState({ flagged: !s.flagged }),
+      flagLabel: s.flagged ? "Flagget som viktig ✓" : "Flagg som viktig",
+      flagBg: s.flagged ? "#00313B" : accent,
+
+      health: HEALTH,
+      sources: SOURCES,
+      models: MODELS,
+      logLines: LOG
+    };
+  }
+}
+
+</script>
+</body>
+</html>

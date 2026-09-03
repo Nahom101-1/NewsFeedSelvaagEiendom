@@ -1,0 +1,919 @@
+/* ==========================================================================
+   Nyhetsradar — Ukens brief
+   Recreated from design_handoff_nyhetsradar/README.md + Nyhetsradar.dc.html.
+
+   Fonts: Archivo stands in for the licensed Selvaag Sans (display/UI) and
+   Source Serif 4 stands in for Tiempos (body). In a real Selvaag deployment
+   both are swapped for the self-hosted brand webfonts — the sizes, weights,
+   tracking and uppercase treatment below are authored for the brand fonts and
+   carry over unchanged.
+
+   House rules from the handoff, applied without exception:
+     - border-radius is 0 everywhere
+     - no box-shadow anywhere
+     - 2px petroleum rules for structure, 1px sand rules for list separators
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Tokens
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* Palette — transcribed from the Selvaag profile manual via the handoff. */
+  --petroleum: #00313b;
+  --rust: #b7592e;
+  --fromage: #faf2cf;
+  --paper: #fffef9;
+  --stone: #f4f4f2;
+  --sand: #e3dbcc;
+  --sand-light: #efeae0; /* reserved: lighter separator variant */
+  --mint: #85b590;
+  --mint-tint: #f2fcfa;
+
+  /* Channel triples so the alpha ladders below stay derived from the palette.
+     Retuning the brand is still a one-line change per colour. */
+  --petroleum-rgb: 0, 49, 59;
+  --paper-rgb: 255, 254, 249;
+  --mint-rgb: 133, 181, 144;
+
+  /* Text alpha ladder on paper */
+  --ink-85: rgba(var(--petroleum-rgb), 0.85);
+  --ink-78: rgba(var(--petroleum-rgb), 0.78);
+  --ink-75: rgba(var(--petroleum-rgb), 0.75);
+  --ink-68: rgba(var(--petroleum-rgb), 0.68);
+  --ink-65: rgba(var(--petroleum-rgb), 0.65);
+  --ink-55: rgba(var(--petroleum-rgb), 0.55);
+  --ink-50: rgba(var(--petroleum-rgb), 0.5);
+  --ink-45: rgba(var(--petroleum-rgb), 0.45);
+  --ink-40: rgba(var(--petroleum-rgb), 0.4);
+
+  /* Text alpha ladder on petroleum (sidebar) */
+  --on-dark-62: rgba(var(--paper-rgb), 0.62);
+  --on-dark-60: rgba(var(--paper-rgb), 0.6);
+  --on-dark-50: rgba(var(--paper-rgb), 0.5);
+  --on-dark-45: rgba(var(--paper-rgb), 0.45);
+  --on-dark-22: rgba(var(--paper-rgb), 0.22);
+  --on-dark-16: rgba(var(--paper-rgb), 0.16);
+
+  /* Row hover: fromage at 40% */
+  --row-hover: rgba(250, 242, 207, 0.4);
+
+  --font-display: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+
+  --rule-structural: 2px solid var(--petroleum);
+  --rule-separator: 1px solid var(--sand);
+
+  --sidebar-width: 264px;
+  --hover-ease: 120ms ease-out;
+}
+
+/* --------------------------------------------------------------------------
+   2. Reset / base
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--petroleum);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+figure {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  color: var(--rust);
+  text-decoration: none;
+  transition: color var(--hover-ease);
+}
+
+a:hover {
+  color: var(--petroleum);
+  text-decoration: underline;
+}
+
+::selection {
+  background: var(--fromage);
+}
+
+:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 11px 16px;
+  background: var(--petroleum);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.skip-link:focus {
+  left: 0;
+  color: var(--paper);
+  text-decoration: none;
+}
+
+/* Shared type roles ------------------------------------------------------- */
+
+.u-display {
+  font-family: var(--font-display);
+}
+
+.u-meta {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.u-prose {
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   3. Shell
+   -------------------------------------------------------------------------- */
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+  align-items: flex-start;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------------------------------------------------
+   4. Sidebar (persistent, 264px)
+   -------------------------------------------------------------------------- */
+
+.sidebar {
+  flex: 0 0 var(--sidebar-width);
+  width: var(--sidebar-width);
+  align-self: stretch;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  background: var(--petroleum);
+  color: var(--paper);
+  padding: 34px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.sidebar__brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  line-height: 1.35;
+}
+
+.sidebar__rule {
+  height: 2px;
+  background: var(--rust);
+  margin: 14px 0 12px;
+}
+
+.sidebar__product {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--mint);
+}
+
+/* Only shown when the sidebar collapses into the mobile top bar. */
+.sidebar__week {
+  display: none;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mint);
+}
+
+/* Nav ---------------------------------------------------------------------- */
+
+.nav__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--on-dark-16);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper);
+  transition: color var(--hover-ease);
+}
+
+.nav__item[href]:hover {
+  color: var(--mint);
+  text-decoration: none;
+}
+
+/* Inert until the routes exist. Present, legible, not pretending to be a
+   control: no pointer cursor, no hover response. */
+.nav__item--inert {
+  color: var(--on-dark-60);
+  cursor: default;
+}
+
+/* The 6x6px rust square always occupies space, so labels never shift. */
+.nav__dot {
+  flex: 0 0 6px;
+  width: 6px;
+  height: 6px;
+  background: var(--rust);
+  opacity: 0;
+}
+
+.nav__item--active .nav__dot {
+  opacity: 1;
+}
+
+/* Watchlists --------------------------------------------------------------- */
+
+.lists {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lists__label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--on-dark-45);
+}
+
+.lists__items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lists__item {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--on-dark-60);
+}
+
+.lists__item--active {
+  color: var(--paper);
+}
+
+.lists__name {
+  flex: 1;
+}
+
+.lists__count {
+  font-family: var(--font-display);
+  font-size: 11px;
+  color: var(--on-dark-50);
+}
+
+.lists__note {
+  font-size: 13px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--on-dark-50);
+  padding-top: 4px;
+}
+
+/* Sidebar footer ----------------------------------------------------------- */
+
+.sidebar__foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar__foot-rule {
+  height: 2px;
+  background: var(--on-dark-22);
+}
+
+.sidebar__stats {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--on-dark-62);
+}
+
+.sidebar__tagline {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: rgba(var(--mint-rgb), 0.8);
+}
+
+/* --------------------------------------------------------------------------
+   5. Page
+   -------------------------------------------------------------------------- */
+
+.page {
+  padding: 46px 52px 72px;
+  max-width: 1080px;
+}
+
+/* Header ------------------------------------------------------------------- */
+
+.brief__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding-bottom: 24px;
+  border-bottom: var(--rule-structural);
+}
+
+.brief__headings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.brief__eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--rust);
+}
+
+.brief__title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 40px;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+
+.brief__actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Buttons ------------------------------------------------------------------ */
+
+.btn {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 11px 16px;
+  cursor: pointer;
+  background: transparent;
+  transition:
+    background var(--hover-ease),
+    border-color var(--hover-ease),
+    color var(--hover-ease);
+}
+
+.btn--secondary {
+  border: var(--rule-structural);
+  color: var(--petroleum);
+}
+
+.btn--secondary:hover {
+  background: var(--fromage);
+}
+
+.btn--primary {
+  border: 2px solid var(--rust);
+  background: var(--rust);
+  color: var(--paper);
+}
+
+.btn--primary:hover {
+  background: var(--petroleum);
+  border-color: var(--petroleum);
+}
+
+/* KPI strip ---------------------------------------------------------------- */
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: var(--rule-structural);
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 22px 20px;
+  border-right: var(--rule-separator);
+}
+
+.kpi:first-child {
+  padding-left: 0;
+}
+
+.kpi:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.kpi__value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.kpi__value--accent {
+  color: var(--rust);
+}
+
+.kpi__label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+}
+
+/* Mobile stat pair (Frame A) — replaces the KPI grid on narrow viewports. */
+.brief__stats {
+  display: none;
+  gap: 18px;
+  font-size: 14px;
+  color: var(--ink-65);
+}
+
+/* Active-list line + blurb -------------------------------------------------- */
+
+.brief__scope {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 26px 0 8px;
+}
+
+.brief__scope-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+}
+
+.brief__scope-value {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--petroleum);
+}
+
+.brief__blurb {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink-75);
+  max-width: 56ch;
+  margin-bottom: 34px;
+}
+
+/* --------------------------------------------------------------------------
+   6. Feed
+   -------------------------------------------------------------------------- */
+
+.feed {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 28px;
+  padding: 30px 0 32px;
+  border-top: var(--rule-separator);
+  transition: background var(--hover-ease);
+}
+
+.row:hover {
+  background: var(--row-hover);
+}
+
+/* Score gutter ------------------------------------------------------------- */
+
+.row__score {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row__num {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--petroleum);
+}
+
+.row__bar {
+  display: block;
+  height: 4px;
+  background: var(--sand);
+}
+
+.row__bar-fill {
+  display: block;
+  height: 4px;
+  background: var(--petroleum);
+}
+
+.row__micro {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+
+/* Scores >= 85 go rust, numeral and bar together. */
+.row--high .row__num {
+  color: var(--rust);
+}
+
+.row--high .row__bar-fill {
+  background: var(--rust);
+}
+
+/* Body --------------------------------------------------------------------- */
+
+.row__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.row__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-50);
+}
+
+.row__category {
+  color: var(--rust);
+}
+
+.row__cluster {
+  padding: 3px 8px;
+  background: var(--mint-tint);
+  border: 1px solid var(--mint);
+  letter-spacing: 0.09em;
+}
+
+/* Mobile-only score chip inside the meta row (Frame A). */
+.row__chip {
+  display: none;
+  background: var(--rust);
+  color: var(--paper);
+  padding: 3px 7px;
+  letter-spacing: 0.05em;
+}
+
+.row__title {
+  font-family: var(--font-body);
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.25;
+  max-width: 46ch;
+}
+
+/* The whole row is the target: a real anchor with a stretched hit area, so it
+   is keyboard-reachable, middle-clickable and shows a real URL on hover. */
+.row__link {
+  color: var(--petroleum);
+  text-decoration: none;
+}
+
+.row__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.row__link:hover {
+  color: var(--petroleum);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* Draw the focus ring around the whole row rather than the text run. Inset by
+   2px instead of offset by 2px so the ring does not sit on the neighbouring
+   row's separator. */
+.row__link:focus-visible {
+  outline: none;
+}
+
+.row__link:focus-visible::after {
+  outline: 2px solid var(--rust);
+  outline-offset: -2px;
+}
+
+.row__summary {
+  font-size: 17px;
+  line-height: 1.62;
+  color: var(--ink-78);
+  max-width: 62ch;
+}
+
+/* "Derfor er dette relevant" — omitted entirely when the LLM pass has not run. */
+.row__why {
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--rust);
+  margin-top: 3px;
+}
+
+.row__why p {
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--ink-68);
+  max-width: 58ch;
+}
+
+/* Feed footer -------------------------------------------------------------- */
+
+.feed__foot {
+  border-top: var(--rule-structural);
+  padding-top: 22px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.feed__note {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink-55);
+}
+
+/* --------------------------------------------------------------------------
+   7. Narrow viewport — Frame A of the mobile design
+   Below ~760px the fixed sidebar becomes a petroleum top bar and the feed
+   collapses into the one-column mobile brief.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  .shell {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sidebar {
+    flex: none;
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    overflow: visible;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+  }
+
+  /* The top bar carries the wordmark and the week only. Nav, watchlists and
+     the pipeline footer are desktop furniture. */
+  .sidebar__wordmark,
+  .sidebar__rule,
+  .nav,
+  .lists,
+  .sidebar__foot {
+    display: none;
+  }
+
+  .sidebar__product {
+    color: var(--paper);
+  }
+
+  .sidebar__week {
+    display: block;
+  }
+
+  .page {
+    padding: 0 0 40px;
+    max-width: none;
+  }
+
+  .brief__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 22px 20px 16px;
+  }
+
+  .brief__title {
+    font-size: 26px;
+    line-height: 1.1;
+  }
+
+  .brief__actions {
+    flex-wrap: wrap;
+  }
+
+  /* Frame A trades the 4-cell KPI grid for a two-stat line. */
+  .kpis {
+    display: none;
+  }
+
+  .brief__stats {
+    display: flex;
+    padding: 0 20px 16px;
+    border-bottom: var(--rule-structural);
+  }
+
+  .brief__scope {
+    padding: 20px 20px 8px;
+  }
+
+  .brief__blurb {
+    font-size: 16px;
+    padding: 0 20px;
+    margin-bottom: 6px;
+  }
+
+  .row {
+    display: block;
+    padding: 20px;
+    border-top: 0;
+    border-bottom: var(--rule-separator);
+  }
+
+  /* Score moves into the meta row as a filled rust chip. */
+  .row__score {
+    display: none;
+  }
+
+  .row__chip {
+    display: inline-block;
+    color: var(--paper);
+  }
+
+  .row--high .row__chip {
+    color: var(--paper);
+  }
+
+  .row__body {
+    gap: 9px;
+  }
+
+  .row__meta {
+    gap: 9px;
+    letter-spacing: 0.11em;
+  }
+
+  .row__title {
+    font-size: 20px;
+    line-height: 1.28;
+  }
+
+  .row__summary {
+    font-size: 16px;
+  }
+
+  .row__why {
+    padding-left: 14px;
+  }
+
+  .row__why p {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink-68);
+  }
+
+  .feed__foot {
+    border-top: 0;
+    padding: 18px 20px;
+  }
+
+  .feed__note {
+    font-size: 14px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8. Print — the brief is a Monday read; some people print it.
+   -------------------------------------------------------------------------- */
+
+@media print {
+  .sidebar,
+  .brief__actions,
+  .feed__foot,
+  .skip-link {
+    display: none;
+  }
+
+  .page {
+    padding: 0;
+    max-width: none;
+  }
+
+  .row {
+    break-inside: avoid;
+  }
+}
