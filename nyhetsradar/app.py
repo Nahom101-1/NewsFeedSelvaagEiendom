@@ -18,6 +18,14 @@ from . import config, db
 
 app = Flask(__name__)
 
+# Create the schema if it is missing. A fresh deployment starts with an empty
+# volume and the pipeline container may not have run yet; without this both the
+# brief and /healthz fail with "no such table: items", so a brand-new install
+# serves a broken dashboard and reports itself unhealthy forever. The DDL is
+# CREATE TABLE IF NOT EXISTS throughout, so this is idempotent and safe to run
+# from every gunicorn worker.
+db.init().close()
+
 MONTHS = [
     "januar",
     "februar",
