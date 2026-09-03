@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(uv sync)",
+      "Bash(uv run pytest*)",
+      "Bash(uv run ruff*)",
+      "Bash(uv run python -m pipeline.*)",
+      "Bash(uv run scripts/*)",
+      "Bash(uv add *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(sqlite3 data/news.db .schema*)",
+      "Bash(sqlite3 data/news.db SELECT *)",
+      "Bash(sqlite3 data/news.db .tables)"
+    ],
+    "ask": [
+      "Bash(rm *)",
+      "Bash(git push*)",
+      "Bash(caddy *)",
+      "Bash(crontab *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Bash(sqlite3 data/news.db DROP *)",
+      "Bash(sqlite3 data/news.db DELETE *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/format.sh",
+            "timeout": 30,
+            "statusMessage": "Formatting with ruff..."
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/pipeline-status.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
