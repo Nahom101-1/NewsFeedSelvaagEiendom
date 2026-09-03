@@ -144,6 +144,31 @@ jobs:
           sys.exit(0 if blocked == 1 and passed >= 1 else 1)
           PY
 
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # Type errors are build errors in Next, so this covers tsc too.
+      - name: Build
+        run: npm run build
+
   docker:
     name: Build image
     runs-on: ubuntu-latest
@@ -179,12 +204,26 @@ jobs:
           docker logs nyhetsradar-ci
           exit 1
 
-      - name: Check the brief renders
+      # Flask is a JSON API now; the UI is the Next.js app in web/.
+      - name: Check the API answers
         run: |
-          code=$(curl -s -o /tmp/brief.html -w '%{http_code}' http://localhost:8000/)
-          echo "HTTP $code, $(wc -c < /tmp/brief.html) bytes"
-          test "$code" = "200"
-          grep -qi "ukens brief" /tmp/brief.html
+          for path in /api/brief /api/admin; do
+            code=$(curl -s -o "/tmp/$(basename "$path").json" -w '%{http_code}' \
+              "http://localhost:8000$path")
+            echo "$path -> HTTP $code"
+            test "$code" = "200"
+          done
+          # Assert real shape, not just a 200: an empty database must still
+          # return the keys the frontend destructures.
+          python3 -c "
+          import json, sys
+          brief = json.load(open('/tmp/brief.json'))
+          admin = json.load(open('/tmp/admin.json'))
+          assert {'stories','kpis','threshold','generated_at'} <= brief.keys(), brief.keys()
+          assert {'totals','distribution','labels'} <= admin.keys(), admin.keys()
+          assert len(admin['distribution']) == 10
+          print('brief and admin payloads OK')
+          "
 
       - name: Container logs
         if: always()
