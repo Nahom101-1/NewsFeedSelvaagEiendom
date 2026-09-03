@@ -15,8 +15,21 @@ uv run scripts/check_feeds.py --write        # probe sources, write config/feeds
 uv run python -m nyhetsradar.collect         # fetch
 uv run python -m nyhetsradar.dedup           # cluster duplicates
 uv run python -m nyhetsradar.score           # gate + rank
-uv run flask --app nyhetsradar.app run       # http://localhost:5000
+
+uv run flask --app nyhetsradar.app run       # JSON API on :5000
+cd web && npm install && npm run dev         # UI on http://localhost:3000
 ```
+
+Both are needed — the UI reads from the API.
+
+## The two pages
+
+- **`/`** — what the reader sees. A plain list of the week's stories, each with
+  two buttons: *Nyttig for meg* / *Ikke nyttig*. No scores, no thresholds, no
+  settings. Every click is a labelled training example, which is the MVP's
+  second job.
+- **`/admin`** — the numbers: score distribution, gate counts, sources, feeds,
+  collection runs, and how many labels have been collected so far.
 
 No API key needed — the default scorer is keyword + recency + source breadth and
 runs entirely offline. To add Norwegian summaries and a "why this matters"

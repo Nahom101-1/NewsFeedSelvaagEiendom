@@ -31,9 +31,15 @@ uv run python -m nyhetsradar.dedup             # step 3: cluster duplicates
 uv run python -m nyhetsradar.score             # steps 4-5: gate + keyword rank
 uv run python -m nyhetsradar.score --llm       # + Haiku summaries (needs API key)
 
-uv run flask --app nyhetsradar.app run --debug # step 6: dashboard on :5000
+uv run flask --app nyhetsradar.app run --debug  # JSON API on :5000
+cd web && npm run dev                           # UI on :3000  (needs the API up)
+
 uv run ruff check . && uv run ruff format .
+cd web && npm run lint && npm run build
 ```
+
+Both processes are needed: the UI fetches from the API server-side, so starting
+only `npm run dev` gives a page that explains it cannot reach the server.
 
 Cron, every four hours: `collect` → `dedup` → `score`.
 
@@ -111,23 +117,39 @@ Behaviour lives in `config/`, not in code.
 
 ## Frontend
 
-`design_handoff_nyhetsradar/` is the design authority — a high-fidelity spec with
-exact hex values, type scale, spacing and interaction states, plus a working
-prototype (`Nyhetsradar.dc.html`).
+**React + Next.js in `web/`.** Flask is a JSON API only — there is no
+server-rendered HTML, no Jinja, no Flask templates. Do not add any.
 
-- **Ignore `design_handoff_nyhetsradar/_ds/`.** It is a generic "Modernist"
-  system with a red accent that the prototype does not import. Using it produces
-  the wrong palette.
-- Palette: petroleum `#00313B`, rust `#B7592E`, fromage `#FAF2CF`, paper
-  `#FFFEF9`, sand `#E3DBCC`, mint `#85B590`.
-- **Border radius 0 everywhere. No box-shadow anywhere.**
-- Archivo and Source Serif 4 stand in for the licensed Selvaag Sans and Tiempos.
-  Swap both in a real deployment; sizes and tracking carry over unchanged.
-- Norwegian formatting: decimal comma, lowercase months, space thousands
-  separator.
+```
+Flask :5000  ── /api/brief, /api/admin, /api/feedback/<id> ──▶  Next :3000
+```
 
-Only the **Ukens brief** screen is built. The handoff also specifies article
-detail, admin, and mobile screens — not built yet.
+Two pages, deliberately different in density:
+
+- **`/` — the reader's page.** One column, large type, and two big buttons per
+  story. Anyone should be able to use it without being told how. **No scores,
+  no thresholds, no KPI strip, no jargon** — a number reads as more precise
+  than it is, and none of it helps someone decide whether a story matters.
+- **`/admin` — the technical page.** Everything the reader's page hides:
+  score distribution, gate counts, sources, feeds, collection runs, label
+  progress. Denser on purpose.
+
+Browser feedback posts go through the Next route handler at
+`web/src/app/api/feedback/[id]/route.ts`, which proxies to Flask — so there is
+no CORS to configure in production and the API origin stays private.
+
+Design tokens live in `web/src/app/globals.css`: petroleum `#00313B`, rust
+`#B7592E`, fromage `#FAF2CF`, paper `#FFFEF9`, sand `#E3DBCC`, mint `#85B590`.
+Border radius 0 everywhere, no box-shadow. Archivo and Source Serif 4 stand in
+for the licensed Selvaag Sans and Tiempos.
+
+`design_handoff_nyhetsradar/` is the original design reference, and its palette
+and typography still apply. Its *layout* does not: the handoff's dense editorial
+brief was judged too cluttered, and the simple two-page split above replaced it.
+**Ignore `design_handoff_nyhetsradar/_ds/`** — a generic system with a red
+accent that the prototype never imported.
+
+Not built: article detail, watchlists, Teams push, digest send.
 
 ## Scope
 
