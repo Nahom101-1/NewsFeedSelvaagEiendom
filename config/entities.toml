@@ -1,0 +1,76 @@
+# Entity vocabulary for the keyword gate and for scoring.
+#
+# The gate is crude on purpose: it exists to keep the API bill near zero, not to
+# be accurate. Accuracy is the scorer's job, one stage later. An item matching
+# zero entities AND zero themes never reaches the scorer.
+#
+# Matching is case-insensitive substring on title + snippet.
+
+# Own companies and brands. Highest weight — a story naming us is almost always
+# worth a look even when the theme is dull.
+own = [
+  "Selvaag",
+  "Selvaag Eiendom",
+  "Selvaag Bolig",
+  "Selvaag Gruppen",
+  "Urbanium",
+]
+
+# Competitors and peers. Worth knowing what they are doing.
+competitors = [
+  "OBOS",
+  "JM Norge",
+  "Veidekke",
+  "Skanska",
+  "AF Gruppen",
+  "Betonmast",
+  "Backe",
+  "Bonava",
+  "Neptune Properties",
+  "Solon Eiendom",
+  "Aspelin Ramm",
+  "Entra",
+  "Norwegian Property",
+  "Höegh Eiendom",
+  "Ferd Eiendom",
+  "Møller Eiendom",
+  "Fredensborg",
+  "Ivar Tollefsen",
+]
+
+# Geography we build in or watch.
+places = [
+  "Fornebu",
+  "Bærum",
+  "Oslo",
+  "Lørenskog",
+  "Ski",
+  "Nordre Follo",
+  "Asker",
+  "Sandnes",
+  "Stavanger",
+  "Bergen",
+  "Trondheim",
+  "Løren",
+  "Ensjø",
+  "Hovinbyen",
+  "Bjørvika",
+  "Økern",
+  "Furuset",
+  "Skøyen",
+  "Lysaker",
+]
+
+# Institutions that move the market or the rules.
+institutions = [
+  "Norges Bank",
+  "Husbanken",
+  "Plan- og bygningsetaten",
+  "Kommunal- og distriktsdepartementet",
+  "Statsforvalteren",
+  "Boligprodusentene",
+  "Eiendom Norge",
+  "NBBL",
+  "Finanstilsynet",
+  "Direktoratet for byggkvalitet",
+]

@@ -1,0 +1,90 @@
+# Theme vocabulary for the keyword gate and for scoring.
+#
+# Same crude substring matching as entities.toml. Widening this list widens what
+# reaches the scorer and costs money; narrowing it risks misses. When you change
+# it, say which direction the volume moves.
+
+# The core business: getting homes built and sold.
+utvikling = [
+  "boligprosjekt",
+  "boligutvikling",
+  "eiendomsutvikling",
+  "boligbygging",
+  "nybygg",
+  "byggestart",
+  "ferdigstilt",
+  "salgsstart",
+  "utbygging",
+  "tomtekjøp",
+  "tomt",
+]
+
+# Planning and permitting — where projects live or die.
+regulering = [
+  "reguleringsplan",
+  "regulering",
+  "områderegulering",
+  "detaljregulering",
+  "kommuneplan",
+  "rammetillatelse",
+  "igangsettingstillatelse",
+  "dispensasjon",
+  "innsigelse",
+  "planforslag",
+  "høring",
+]
+
+# Market conditions.
+marked = [
+  "boligmarkedet",
+  "boligpriser",
+  "eiendomsmarkedet",
+  "boligsalg",
+  "usolgte boliger",
+  "igangsetting",
+  "boligbehov",
+  "leiemarkedet",
+  "næringseiendom",
+  "transaksjon",
+  "eiendomstransaksjon",
+]
+
+# Money.
+finans = [
+  "styringsrenten",
+  "renteheving",
+  "rentekutt",
+  "boliglån",
+  "byggelån",
+  "egenkapitalkrav",
+  "utlånsforskriften",
+  "emisjon",
+  "refinansiering",
+  "konkurs",
+  "kvartalsrapport",
+]
+
+# Cost and delivery risk.
+kostnad = [
+  "byggekostnader",
+  "materialpriser",
+  "entreprenør",
+  "anbud",
+  "kontrakt",
+  "byggherre",
+  "forsinkelse",
+  "kostnadssprekk",
+]
+
+# Regulation, sustainability, politics.
+politikk = [
+  "boligpolitikk",
+  "boligmelding",
+  "energikrav",
+  "TEK17",
+  "klimakrav",
+  "bærekraft",
+  "utleieregulering",
+  "eiendomsskatt",
+  "dokumentavgift",
+]
