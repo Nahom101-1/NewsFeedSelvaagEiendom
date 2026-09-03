@@ -20,6 +20,11 @@ __pycache__/
 # Design reference, not runtime code.
 design_handoff_nyhetsradar/
 
+# The Next.js frontend is a separate deployable and is not part of the Flask
+# API image. Without this the build context would include node_modules and
+# .next — tens of thousands of files sent to the daemon for nothing.
+web/
+
 tests/
 .DS_Store
 *.md
