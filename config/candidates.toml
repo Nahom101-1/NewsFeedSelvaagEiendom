@@ -1,0 +1,118 @@
+# Candidate feeds to probe. Nothing here is trusted until scripts/check_feeds.py
+# confirms it responds — run `uv run scripts/check_feeds.py --write` to produce
+# config/feeds.toml containing only the ones that actually answered.
+#
+# All sources must be free and publicly accessible. No paywalled or licensed feeds.
+#
+# FINDING (2026-09-03, step 1): the three most valuable trade publications —
+# Estate Nyheter, Byggeindustrien (bygg.no) and Kommunal Rapport — have all
+# removed their public RSS feeds. Every documented path returns 404 and none
+# advertise a rel="alternate" feed. They are reachable instead through
+# site:-scoped Google News queries, which return same-day items. Those queries
+# are the "bransje" entries below; keep them until the publishers restore feeds.
+
+# ── Direct publisher feeds that responded ─────────────────────────────────────
+[[candidate]]
+name = "E24"
+url = "https://e24.no/rss"
+type = "riks"
+
+[[candidate]]
+name = "NRK Norge"
+url = "https://www.nrk.no/norge/toppsaker.rss"
+type = "riks"
+
+[[candidate]]
+name = "NRK Oslo og Viken"
+url = "https://www.nrk.no/osloogviken/toppsaker.rss"
+type = "regional"
+
+[[candidate]]
+name = "Nettavisen"
+url = "https://www.nettavisen.no/service/rich-rss"
+type = "riks"
+
+# ── Trade press, via Google News (their own feeds are dead — see note above) ──
+[[candidate]]
+name = "Estate Nyheter (via Google News)"
+url = "https://news.google.com/rss/search?q=site%3Aestatenyheter.no&hl=no&gl=NO&ceid=NO:no"
+type = "bransje"
+
+[[candidate]]
+name = "Byggeindustrien (via Google News)"
+url = "https://news.google.com/rss/search?q=site%3Abygg.no&hl=no&gl=NO&ceid=NO:no"
+type = "bransje"
+
+[[candidate]]
+name = "Kommunal Rapport (via Google News)"
+url = "https://news.google.com/rss/search?q=site%3Akommunal-rapport.no&hl=no&gl=NO&ceid=NO:no"
+type = "offentlig"
+
+# ── Keyword searches ──────────────────────────────────────────────────────────
+[[candidate]]
+name = "Google News · Selvaag"
+url = "https://news.google.com/rss/search?q=Selvaag&hl=no&gl=NO&ceid=NO:no"
+type = "sok"
+
+[[candidate]]
+name = "Google News · Selvaag Eiendom"
+url = "https://news.google.com/rss/search?q=%22Selvaag+Eiendom%22&hl=no&gl=NO&ceid=NO:no"
+type = "sok"
+
+[[candidate]]
+name = "Google News · Selvaag Bolig"
+url = "https://news.google.com/rss/search?q=%22Selvaag+Bolig%22&hl=no&gl=NO&ceid=NO:no"
+type = "sok"
+
+[[candidate]]
+name = "Google News · boligmarkedet Oslo"
+url = "https://news.google.com/rss/search?q=boligmarkedet+Oslo&hl=no&gl=NO&ceid=NO:no"
+type = "sok"
+
+[[candidate]]
+name = "Google News · eiendomsutvikling"
+url = "https://news.google.com/rss/search?q=eiendomsutvikling&hl=no&gl=NO&ceid=NO:no"
+type = "sok"
+
+[[candidate]]
+name = "Google News · eiendomsmarkedet"
+url = "https://news.google.com/rss/search?q=eiendomsmarkedet&hl=no&gl=NO&ceid=NO:no"
+type = "sok"
+
+[[candidate]]
+name = "Google News · boligutvikling"
+url = "https://news.google.com/rss/search?q=boligutvikling&hl=no&gl=NO&ceid=NO:no"
+type = "sok"
+
+# ── Probed and rejected — kept on purpose, do not delete ──────────────────────
+# Their own feeds 404 as of 2026-09-03; superseded by the site: queries above.
+#
+# [[candidate]]  # DEAD 2026-09-03: 404, no rel=alternate on site root
+#   name = "Estate Nyheter"
+#   url = "https://www.estatenyheter.no/feed/"
+#   type = "bransje"
+#
+# [[candidate]]  # DEAD 2026-09-03: 404 on /rss, /rss.xml, /feed, /rss/nyheter
+#   name = "Byggeindustrien"
+#   url = "https://www.bygg.no/rss"
+#   type = "bransje"
+#
+# [[candidate]]  # DEAD 2026-09-03: 404 on /rss, /rss.xml, /feed
+#   name = "Kommunal Rapport"
+#   url = "https://www.kommunal-rapport.no/rss"
+#   type = "offentlig"
+#
+# [[candidate]]  # DEAD 2026-09-03: malformed XML (mismatched tag)
+#   name = "NRK Økonomi"
+#   url = "https://www.nrk.no/okonomi/toppsaker.rss"
+#   type = "riks"
+#
+# [[candidate]]  # STALE 2026-09-03: newest item 46d old — query too narrow
+#   name = "Google News · boligprosjekt Fornebu"
+#   url = "https://news.google.com/rss/search?q=boligprosjekt+Fornebu&hl=no&gl=NO&ceid=NO:no"
+#   type = "sok"
+#
+# [[candidate]]  # STALE 2026-09-03: newest item 84d old — query too narrow
+#   name = "Google News · regulering boligbygging"
+#   url = "https://news.google.com/rss/search?q=regulering+boligbygging&hl=no&gl=NO&ceid=NO:no"
+#   type = "sok"
