@@ -1,0 +1,26 @@
+# Keep the build context small and secrets out of the image.
+.git
+.github
+.claude
+.venv
+data/
+*.db
+*.db-journal
+*.db-wal
+.env
+.env.*
+!.env.example
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Design reference, not runtime code.
+design_handoff_nyhetsradar/
+
+tests/
+.DS_Store
+*.md
+!README.md

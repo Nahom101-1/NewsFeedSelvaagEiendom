@@ -1,0 +1,47 @@
+# Nyhetsradar — dashboard plus collection loop, sharing one SQLite volume.
+#
+#   docker compose up --build          # both services
+#   docker compose run --rm pipeline python -m nyhetsradar.collect   # one pass
+#
+# Caddy terminates TLS and does basic auth in front of this in production; it is
+# deliberately not in here, so `up` gives you a plain local dashboard.
+
+services:
+  web:
+    build: .
+    image: nyhetsradar:latest
+    ports:
+      - "${WEB_PORT:-8000}:8000"
+    volumes:
+      - news-data:/data
+    environment:
+      DATABASE_PATH: /data/news.db
+      SCORE_THRESHOLD: "${SCORE_THRESHOLD:-50}"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  pipeline:
+    build: .
+    image: nyhetsradar:latest
+    command: ["pipeline-loop"]
+    volumes:
+      - news-data:/data
+      # Mounted read-only so tuning is a file edit plus a restart, not a rebuild.
+      # This is the whole point of keeping behaviour in config/.
+      - ./config:/app/config:ro
+    environment:
+      DATABASE_PATH: /data/news.db
+      SCORE_THRESHOLD: "${SCORE_THRESHOLD:-50}"
+      COLLECT_INTERVAL: "${COLLECT_INTERVAL:-14400}"
+      # Set SCORE_ARGS=--llm and provide a key to turn on Haiku summaries.
+      SCORE_ARGS: "${SCORE_ARGS:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+    restart: unless-stopped
+
+volumes:
+  news-data:
