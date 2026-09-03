@@ -236,7 +236,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       # The Caddyfile is never exercised locally — no Caddy on the dev machine
       # — so a typo would only surface on the first real deploy.
