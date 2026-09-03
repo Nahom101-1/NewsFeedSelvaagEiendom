@@ -1,0 +1,20 @@
+.env
+.env.local
+data/
+*.db
+*.db-journal
+*.db-wal
+
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+.claude/settings.local.json
+
+.DS_Store
+
+# Cached sentence-transformers weights
+models/
