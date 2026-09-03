@@ -1,0 +1,187 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    name: Lint and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install dependencies
+        run: uv sync --frozen --group dev
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
+      - name: Ruff format check
+        run: uv run ruff format --check .
+
+      - name: Tests
+        run: uv run pytest -q
+
+  config-integrity:
+    name: Config integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - run: uv sync --frozen
+
+      # The tuning surface is the thing most likely to be edited by hand, and a
+      # malformed TOML file breaks the pipeline at collection time rather than
+      # at edit time. Parse it here instead.
+      - name: Parse config files
+        run: |
+          uv run python - <<'PY'
+          import sys, tomllib
+          from pathlib import Path
+
+          failed = False
+          for path in sorted(Path("config").glob("*.toml")):
+              try:
+                  tomllib.loads(path.read_text())
+                  print(f"ok   {path}")
+              except tomllib.TOMLDecodeError as exc:
+                  print(f"FAIL {path}: {exc}")
+                  failed = True
+
+          feeds = tomllib.loads(Path("config/feeds.toml").read_text()).get("feed", [])
+          print(f"\n{len(feeds)} active feeds")
+          if not feeds:
+              print("FAIL config/feeds.toml has no active feeds")
+              failed = True
+          for feed in feeds:
+              missing = {"name", "url", "type"} - feed.keys()
+              if missing:
+                  print(f"FAIL {feed.get('name', '?')} missing {missing}")
+                  failed = True
+
+          if not Path("config/profile.md").read_text().strip():
+              print("FAIL config/profile.md is empty")
+              failed = True
+
+          sys.exit(1 if failed else 0)
+          PY
+
+      # Proves the pipeline is wired end to end without touching the network:
+      # a temporary database, three synthetic items, then dedup and score.
+      - name: Smoke test pipeline against a temporary database
+        env:
+          DATABASE_PATH: /tmp/ci-news.db
+        run: |
+          uv run python - <<'PY'
+          from datetime import UTC, datetime
+          from nyhetsradar import db
+
+          conn = db.init()
+          now = datetime.now(UTC).isoformat()
+          titles = [
+              "Selvaag Eiendom kjoper tomt i Oslo",
+              "Selvaag Eiendom kjopte tomten i Oslo",
+              "Helt urelatert sak om matlaging",
+          ]
+          conn.executemany(
+              "INSERT OR IGNORE INTO items (link,title,snippet,source,source_type,"
+              "published_at,collected_at) VALUES (?,?,?,?,?,?,?)",
+              [
+                  (f"https://example.test/{i}", t, "", "CI", "test", now, now)
+                  for i, t in enumerate(titles)
+              ],
+          )
+          conn.commit()
+          PY
+          uv run python -m nyhetsradar.dedup
+          uv run python -m nyhetsradar.score
+
+      - name: Assert the gate blocked the irrelevant item
+        env:
+          DATABASE_PATH: /tmp/ci-news.db
+        run: |
+          uv run python - <<'PY'
+          import sys
+          from nyhetsradar import db
+
+          conn = db.connect()
+          blocked = conn.execute(
+              "SELECT COUNT(*) FROM items WHERE gated = 0 AND title LIKE '%matlaging%'"
+          ).fetchone()[0]
+          passed = conn.execute(
+              "SELECT COUNT(*) FROM items WHERE gated = 1 AND title LIKE '%Selvaag%'"
+          ).fetchone()[0]
+          print(f"blocked irrelevant: {blocked}, passed relevant: {passed}")
+          sys.exit(0 if blocked == 1 and passed >= 1 else 1)
+          PY
+
+  docker:
+    name: Build image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          load: true
+          tags: nyhetsradar:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # The image is only useful if the app actually answers. Start it against
+      # an empty database and check the health endpoint reports ok.
+      - name: Start container and check health
+        run: |
+          docker run -d --name nyhetsradar-ci -p 8000:8000 nyhetsradar:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/healthz; then
+              printf '\nhealthy after %ss\n' "$i"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "container never became healthy"
+          docker logs nyhetsradar-ci
+          exit 1
+
+      - name: Check the brief renders
+        run: |
+          code=$(curl -s -o /tmp/brief.html -w '%{http_code}' http://localhost:8000/)
+          echo "HTTP $code, $(wc -c < /tmp/brief.html) bytes"
+          test "$code" = "200"
+          grep -qi "ukens brief" /tmp/brief.html
+
+      - name: Container logs
+        if: always()
+        run: docker logs nyhetsradar-ci || true
